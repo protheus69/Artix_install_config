@@ -101,7 +101,6 @@ while [ $OK -eq 0 ]; do
 done
 
 # on copie le script d'installation dans /mnt/
-sed -i "3 i\DISK=$DISK" artix-install-chroot.sh
 cp artix-install-chroot.sh /mnt/
 chmod +x /mnt/artix-install-chroot.sh
 cp artix-postinstall.sh /mnt/
