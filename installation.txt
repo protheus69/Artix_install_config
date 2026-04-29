@@ -1,0 +1,113 @@
+1 - connection a internet ( le plus simple, faire l'install en ethernet )
+2 - partionnement des disks
+  Utiliser fdisk et pas cfdisk!!! risque de probleme de signature des partitions
+  
+  fdisk /dev/nvme***
+    g pour creer une nouvelle table et supprimé les anciennes partition
+
+    Partition EFI
+      n pour creer une nouvelle partition
+        numero de partition : 1 
+        premier secteur : 2048
+        dernier secteur : +1G
+      t pour changer le type de partition
+        type de partion : 1
+
+    Partition SWAP ( pour l'hibernation )
+      n pour creer une nouvelle partition
+        numero de partition : 2 
+        premier secteur : par default
+        dernier secteur : +34G
+      t pour changer le type de partition
+        type de partion : 19
+
+    Partition principale ROOT
+      n pour creer une nouvelle partition
+        numero de partition : 3 
+        premier secteur : par default
+        dernier secteur : par default
+      t pour changer le type de partition
+        type de partion : 23
+
+      wq pour enregistrer et quitter
+
+3 - creation des systemes de fichier
+  wipefs -a /dev/<EFI>
+  wipefs -a /dev/<SWAP>
+  wipefs -a /dev/<ROOT>
+
+  mkfs.fat -F 32 /dev/<EFI>
+  mkswap /dev/<SWAP>
+  mkfs.btrfs /dev/<ROOT>
+
+  mount /dev/<ROOT> /mnt
+  btrfs subvolume create /mnt/@
+  btrfs subvolume create /mnt/@home
+  btrfs subvolume create /mnt/@snapshots
+  btrfs subvolume create /mnt/@var_log
+  umount /mnt
+
+4 - montage des partitions
+  swapon /dev/<SWAP>
+  mount -o noatime,compress=zstd,subvol=@ /dev/<ROOT> /mnt
+  mkdir -p /mnt/{boot/efi,home,.snapshots,var/log}
+  mount -o noatime,compress=zstd,subvol=@home /dev/<ROOT> /mnt/home
+  mount -o noatime,compress=zstd,subvol=@snapshots /dev/<ROOT> /mnt/.snapshots
+  mount -o noatime,compress=zstd,subvol=@var_log /dev/<ROOT> /mnt/var/log
+  mount /dev/<EFI> /mnt/boot/efi
+
+5 - Mise a jour de la date
+  rc-service ntpd start
+  
+6 - Installation des paquets de base
+  basestrap /mnt base base-devel openrc elogind-openrc btrfs-progs
+
+7 - Installation du kernel
+  basestrap /mnt linux linux-firmware intel-ucode sof-firmware
+
+8 - Generation du fichier fstab
+  fstabgen -U /mnt >> /mnt/etc/fstab
+
+9 - Chroot
+  artix-chroot /mnt
+
+10 - Configuration du systeme
+  ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
+  hwclock --systohc
+  pacman -S nano
+  nano /etc/locale.gen ( decommenter fr_FR.UTF-8 UTF-8
+  locale-gen
+  nano /etc/conf.d/keymaps ( remplacer keymap="us" par keymap="fr"
+  nano /etc/locale.conf
+   export LANG="fr_FR.UTF-8"
+   export LC_COLLATE="C"
+
+11 - Installation de grub
+  pacman -S grub os-prober efibootmgr
+  grub-install --recheck /dev/nvmxxx
+  grub-mkconfig -o /boot/grub/grub.cfg
+
+12 - Utilisateur
+  passwd ( pour root )
+  useradd -m -G wheel seb
+  passwd seb
+
+13 - Network
+  nano /etc/hostname
+  myhostname
+
+  nano /etc/hosts
+  127.0.0.1        localhost
+  ::1              localhost
+  127.0.1.1        myhostname.localdomain  myhostname
+
+  nano /etc/conf.d/hostname
+  hostname='myhostname'
+
+  pacman -S dhcpcd networkmanager-openrc
+  rc-update add NetworkManager default
+
+14 - Fin
+  exit
+  umount -R /mnt
+  reboot
