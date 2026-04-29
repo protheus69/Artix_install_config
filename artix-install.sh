@@ -106,8 +106,8 @@ chmod +x /mnt/artix-install-chroot.sh
 cp artix-postinstall.sh /mnt/
 chmod +x /mnt/artix-postinstall.sh
 
-echo "Tapez la commande artix-chroot pour entrer dans le chroot"
-echo "Esuite lancez la commande ./artix-install-chroot.sh pour continuer l'installation"
+echo "Tapez la commande - artix-chroot /mnt - pour entrer dans le chroot"
+echo "Esuite lancez la commande - ./artix-install-chroot.sh - pour continuer l'installation"
 
 exit
 
