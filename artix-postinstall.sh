@@ -68,7 +68,7 @@ rc-update add chronyd default
 
 echo " Ajouts des groupes pour l'utilisateur"
 #TODO utilisation de variable pour l'utilisateur
-usermod -a -G input,power,optical,lp,scanner,dbus,adbusers,uucp,vboxusers seb
+usermod -a -G input,power,optical,lp,scanner,dbus,uucp seb
 
 snapper -c root create -d "Base install"
 grub-mkconfig -o /boot/grub/grub.cfg
