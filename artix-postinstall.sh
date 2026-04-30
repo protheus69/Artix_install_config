@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+
+
+
 #On lance ce scripts dans /home/seb avec sudo 
 
 # genere le fichier /etc/pacman.d/mirrorlist-arch et installe les clefs GPG
@@ -19,7 +22,7 @@ pacman -Sy
 
 echo " Installation du serveur graphique"
 # nvidia-dkms n'existe pas dans les depots Artix, utilisation de nvidia-580xx pour les pilotes propriétaire
-pacman -S --needed xorg nvidia-580xx-dkms nvidia-580xx-settings nvidia-580xx-utils nvidia-prime xf86-input-libinput intel-media-driver
+pacman -S --needed linux-headers xorg nvidia-580xx nvidia-580xx-settings nvidia-580xx-utils nvidia-prime xf86-input-libinput intel-media-driver
 
 echo " Installation de kde et activation des services"
 pacman -S --needed plasma kde-applications cups-openrc
@@ -39,36 +42,36 @@ rc-update add power-profiles-daemon default
 # Installation de paru
 echo "Installation de paru"
 pacman -S --noconfirm --needed git rustup
-sudo -u seb rustup update default
+sudo -u seb rustup update stable
 sudo -u seb git clone https://aur.archlinux.org/paru.git
 cd paru
 sudo -u seb makepkg -si
 cd ..
 # Configuration des snapshots
 echo " Mise en place du systeme de snapshots"
-umount /.snapshots 2>/dev/null
-btrfs subvolume delete @snapshots 2>/dev/null
+#umount /.snapshots
+btrfs subvolume delete @snapshots
 rm -rf /.snapshots
 
-pacman -S --noconfirm --needed grub-btrfs snapper snap-pac
+pacman -S --noconfirm --needed grub-btrfs snapper
 
 snapper -c root create-config /
 btrfs subvolume delete /.snapshots
 mkdir /.snapshots
 #TODO /utilisation de variable pour le disk
-mount /dev/nvme0n1p3 /mnt -o subvolid=5
+mount $PART_ROOT /mnt -o subvolid=5
 btrfs subvolume create /mnt/@snapshots
 umount /mnt
-mount -o subvol=@snapshots /dev/nvme0n1p3 /.snapshots
+mount -o subvol=@snapshots $PART_ROOT /.snapshots
 
-paru snap-pac-grub
+sudo -u seb paru -S snap-pac-grub snap-pac-git
 
 pacman -S --noconfirm --needed chrony-openrc
-rc-update add chronyd default
+rc-update add chrony default
 
 echo " Ajouts des groupes pour l'utilisateur"
 #TODO utilisation de variable pour l'utilisateur
-usermod -a -G input,power,optical,lp,scanner,dbus,uucp seb
+usermod -a -G input,power,optical,lp,scanner,dbus,uucp $USER
 
 snapper -c root create -d "Base install"
 grub-mkconfig -o /boot/grub/grub.cfg
