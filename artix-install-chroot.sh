@@ -44,7 +44,7 @@ if [[ -z $MNAME ]]; then
 fi
 echo "$MNAME" > /etc/hostname
 echo "127.0.1.1        $MNAME.localdomain  $MNAME" >> /etc/hosts
-echo "$MNAME" > /etc/conf.d/hostname
+echo "hostname='$MNAME'" > /etc/conf.d/hostname
 
 echo "Installation du service reseau"
 pacman -S --noconfirm --needed dhcpcd networkmanager-openrc dbus-openrc elogind-openrc
