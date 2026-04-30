@@ -19,10 +19,10 @@ pacman -Sy
 
 echo " Installation du serveur graphique"
 # nvidia-dkms n'existe pas dans les depots Artix, utilisation de nvidia-580xx pour les pilotes propriétaire
-pacman -S --noconfirm --needed xorg nvidia-580xx-dkms nvidia-580xx-settings nvidia-580xx-utils nvidia-prime xf86-input-libinput intel-media-driver
+pacman -S --needed xorg nvidia-580xx-dkms nvidia-580xx-settings nvidia-580xx-utils nvidia-prime xf86-input-libinput intel-media-driver
 
 echo " Installation de kde et activation des services"
-pacman -S --noconfirm --needed plasma kde-applications cups-openrc
+pacman -S --needed plasma kde-applications cups-openrc
 pacman -S --noconfirm --needed sddm-openrc
 rc-update add sddm default
 rc-update add cupsd default
