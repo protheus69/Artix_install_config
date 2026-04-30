@@ -52,6 +52,8 @@ rc-update add NetworkManager default
 rc-update add dbus default
 rc-update add elogind boot
 
+mv /artix-postinstall.sh /home/$USER/
+
 echo -e "\n--- INSTALLATION CHROOT TERMINEE ---"
 echo "1. Tapez 'exit'"
 echo "2. Tapez 'umount -R /mnt'"
