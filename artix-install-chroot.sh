@@ -53,6 +53,7 @@ rc-update add dbus default
 rc-update add elogind boot
 
 mv /artix-postinstall.sh /home/$USER/
+mv /Freebox-CC1514.nmconnection /etc/NetworkManager/system-connections/
 
 echo -e "\n--- INSTALLATION CHROOT TERMINEE ---"
 echo "1. Tapez 'exit'"
