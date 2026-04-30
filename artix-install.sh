@@ -44,6 +44,7 @@ wipefs -a $PART_ROOT
 # Creation des systemes de fichier
 echo "Creation des systemes de fichiers sur $PART_EFI, $PART_SWAP, $PART_ROOT..."
 mkfs.fat -F 32 $PART_EFI
+swapoff $PART_SWAP
 mkswap $PART_SWAP
 mkfs.btrfs $PART_ROOT
 
@@ -101,10 +102,16 @@ while [ $OK -eq 0 ]; do
 done
 
 # on copie le script d'installation dans /mnt/
+
+sed -i "3 i\DISK=$PART_ROOT" artix-postinstall.sh
+sed -i "4 i\DISK=$USER artix-postinstall.sh
+
 cp artix-install-chroot.sh /mnt/
 chmod +x /mnt/artix-install-chroot.sh
 cp artix-postinstall.sh /mnt/
 chmod +x /mnt/artix-postinstall.sh
+
+cp /etc/NetworkManager/system-connections/Freebox-CC1514.nmconnection /mnt/
 
 echo "Tapez la commande - artix-chroot /mnt - pour entrer dans le chroot"
 echo "Esuite lancez la commande - ./artix-install-chroot.sh - pour continuer l'installation"
