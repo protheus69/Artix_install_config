@@ -104,7 +104,6 @@ done
 # on copie le script d'installation dans /mnt/
 
 sed -i "3 i\DISK=$PART_ROOT" artix-postinstall.sh
-sed -i "4 i\DISK=$USER artix-postinstall.sh
 
 cp artix-install-chroot.sh /mnt/
 chmod +x /mnt/artix-install-chroot.sh
