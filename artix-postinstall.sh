@@ -32,9 +32,7 @@ rc-update add cupsd default
 # Son et bluetooth
 pacman -S --noconfirm --needed pipewire-openrc pipewire-pulse-openrc wireplumber-openrc
 pacman -S --noconfirm --needed bluez bluez-openrc bluez-utils
-sudo -u seb rc-update add -U pipewire default
-sudo -u seb rc-update add -U pipewire-pulse default
-sudo -u seb rc-update add -U wireplumber default
+
 rc-update add bluetoothd default
 # Gestion de l'energie
 pacman -S power-profiles-daemon-openrc
@@ -42,10 +40,10 @@ rc-update add power-profiles-daemon default
 # Installation de paru
 echo "Installation de paru"
 pacman -S --noconfirm --needed git rustup
-sudo -u seb rustup update stable
-sudo -u seb git clone https://aur.archlinux.org/paru.git
+sudo -u $NUSER rustup update stable
+sudo -u $NUSER git clone https://aur.archlinux.org/paru.git
 cd paru
-sudo -u seb makepkg -si
+sudo -u $NUSER makepkg -si
 cd ..
 # Configuration des snapshots
 echo " Mise en place du systeme de snapshots"
@@ -56,24 +54,26 @@ rm -rf /.snapshots
 pacman -S --noconfirm --needed grub-btrfs snapper
 
 snapper -c root create-config /
-btrfs subvolume delete /.snapshots
+echo " La suppression du sous volume va planter, il faut supprimer le sous volume /.snapshots apres install manuellement"
+#btrfs subvolume delete /.snapshots
 mkdir /.snapshots
-#TODO /utilisation de variable pour le disk
+
 mount $PART_ROOT /mnt -o subvolid=5
 btrfs subvolume create /mnt/@snapshots
 umount /mnt
 mount -o subvol=@snapshots $PART_ROOT /.snapshots
 
-sudo -u seb paru -S snap-pac-grub snap-pac-git
+sudo -u $NUSER paru -S snap-pac-grub snap-pac-git
 
 pacman -S --noconfirm --needed chrony-openrc
 rc-update add chrony default
 
 echo " Ajouts des groupes pour l'utilisateur"
-#TODO utilisation de variable pour l'utilisateur
-usermod -a -G input,power,optical,lp,scanner,dbus,uucp $USER
+usermod -a -G input,power,optical,lp,scanner,dbus,uucp $NUSER
 
 snapper -c root create -d "Base install"
 grub-mkconfig -o /boot/grub/grub.cfg
+
+echo " Lancer ./pipewire.sh en tant qu'utilisateur"
 
 exit
