@@ -27,12 +27,12 @@ passwd
 
 # Creation de l'utilisateur
 echo "Creation d'un utilisateur"
-read -p "Entrez un nom d'utilisateur [seb]:" USER
-if [[ -z $USER ]]; then
-    USER="seb"
+read -p "Entrez un nom d'utilisateur [seb]:" NUSER
+if [[ -z $NUSER ]]; then
+    NUSER="seb"
 fi
-useradd -m -G wheel,storage,video,audio $USER
-passwd $USER
+useradd -m -G wheel,storage,video,audio $NUSER
+passwd $NUSER
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
@@ -52,8 +52,9 @@ rc-update add NetworkManager default
 rc-update add dbus default
 rc-update add elogind boot
 
-mv /artix-postinstall.sh /home/$USER/
+mv /artix-postinstall.sh /home/$NUSER/
 mv /Freebox-CC1514.nmconnection /etc/NetworkManager/system-connections/
+sed -i "4 i\NUSER=$NUSER /home/$NUSER/artix-postinstall.sh
 
 echo -e "\n--- INSTALLATION CHROOT TERMINEE ---"
 echo "1. Tapez 'exit'"
